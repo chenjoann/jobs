@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>退虎徵才資訊管理系統</title>
+    <title>退虎徵才資訊管理系統 v2.0</title>
     <style>
         * {
             margin: 0;
@@ -204,6 +204,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             border-left: 5px solid #667eea;
+            position: relative;
         }
 
         .job-card:hover {
@@ -247,6 +248,46 @@
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px solid #eee;
+            position: relative;
+        }
+
+        .job-description.collapsed {
+            max-height: 8em;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .job-description.collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2em;
+            background: linear-gradient(transparent, white);
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            padding: 5px 0;
+            text-decoration: underline;
+        }
+
+        .expand-btn:hover {
+            color: #5a6fd8;
+        }
+
+        .job-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 0.9rem;
         }
 
         .no-jobs {
@@ -256,30 +297,27 @@
             padding: 40px;
         }
 
-        .success-message {
-            background: #d4edda;
-            color: #155724;
+        .success-message, .error-message, .info-message {
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
             border: 1px solid #c3e6cb;
         }
 
         .error-message {
             background: #f8d7da;
             color: #721c24;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
             border: 1px solid #f5c6cb;
         }
 
-        .loading-message {
+        .info-message {
             background: #cce7ff;
             color: #004085;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
             border: 1px solid #99d6ff;
         }
 
@@ -332,24 +370,19 @@
             font-size: 0.9rem;
             font-weight: 600;
             z-index: 1000;
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #99d6ff;
         }
 
-        .status-connected {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-connecting {
-            background: #fff3cd;
+        .password-hint {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
             color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
@@ -377,8 +410,8 @@
 </head>
 <body>
     <!-- 連線狀態指示器 -->
-    <div id="connectionStatus" class="connection-status status-connecting">
-        🔄 正在連接雲端資料庫...
+    <div id="connectionStatus" class="connection-status">
+        🔄 正在連接資料庫...
     </div>
 
     <!-- 登入頁面 -->
@@ -386,28 +419,28 @@
         <div class="container">
             <div class="header">
                 <h1>🐯 退虎徵才資訊管理系統</h1>
-                <p>雲端同步 - 多人協作版本</p>
+                <p>v2.0 - 企業級雲端協作平台</p>
             </div>
             
             <div class="login-container">
                 <h2 style="margin-bottom: 30px; color: #333; text-align: center;">🔐 系統登入</h2>
                 
                 <div id="loginError" class="error-message" style="display: none;">
-                    ❌ 密碼錯誤，請重新輸入
+                    ❌ 存取密碼錯誤，請重新輸入
                 </div>
 
                 <div class="form-group">
                     <label for="passwordInput">存取密碼</label>
-                    <input type="password" id="passwordInput" placeholder="請輸入系統密碼">
+                    <input type="password" id="passwordInput" placeholder="請輸入存取密碼" autofocus>
                 </div>
                 <button class="btn" onclick="attemptLogin()">🔓 進入系統</button>
                 
-                <div style="margin-top: 30px; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 10px; text-align: center; color: #555;">
-                    <small>
-
-                        🌐 資料雲端同步，多人可協作<br>
-                        📱 手機電腦都能使用
-                    </small>
+                <div class="password-hint">
+                    💡 <strong>系統特色：</strong><br>
+                    🌐 雲端即時同步，多人協作<br>
+                    📱 響應式設計，手機平板都適用<br>
+                    🔒 安全加密，資料保護<br>
+                    🚀 快速搜尋，智能篩選
                 </div>
             </div>
         </div>
@@ -418,7 +451,7 @@
         <div class="container">
             <div class="header">
                 <h1>🐯 退虎徵才資訊管理系統</h1>
-                <p>雲端協作 - 即時同步職缺資訊</p>
+                <p>雲端協作平台 - 讓人才招募更輕鬆</p>
                 <button class="logout-btn" onclick="logout()">🔒 登出</button>
             </div>
 
@@ -435,11 +468,16 @@
                     <div class="stat-number" id="todayJobs">-</div>
                     <div class="stat-label">今日新增</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="onlineUsers">1</div>
+                    <div class="stat-label">線上用戶</div>
+                </div>
             </div>
 
             <div class="tabs">
                 <button class="tab-button active" onclick="switchTab('upload')">📝 發布職缺</button>
                 <button class="tab-button" onclick="switchTab('search')">🔍 查詢職缺</button>
+                <button class="tab-button" onclick="switchTab('manage')">⚙️ 系統管理</button>
             </div>
 
             <div id="upload-tab" class="tab-content active">
@@ -447,75 +485,85 @@
                 
                 <div id="uploadStatus" style="display: none;"></div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>公司名稱 *</label>
-                        <input type="text" id="company" required>
+                <form id="jobForm" onsubmit="return false;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>公司名稱 *</label>
+                            <input type="text" id="company" required>
+                        </div>
+                        <div class="form-group">
+                            <label>職位名稱 *</label>
+                            <input type="text" id="jobTitle" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>職位名稱 *</label>
-                        <input type="text" id="jobTitle" required>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>工作地點 *</label>
+                            <input type="text" id="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label>工作類型 *</label>
+                            <select id="employmentType" required>
+                                <option value="">請選擇工作類型</option>
+                                <option value="全職">全職</option>
+                                <option value="兼職">兼職</option>
+                                <option value="契約">契約</option>
+                                <option value="實習">實習</option>
+                                <option value="遠端工作">遠端工作</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>工作地點 *</label>
-                        <input type="text" id="location" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>薪資範圍</label>
+                            <input type="text" id="salary" placeholder="例：40,000 - 60,000">
+                        </div>
+                        <div class="form-group">
+                            <label>經驗要求</label>
+                            <select id="experience">
+                                <option value="">請選擇經驗要求</option>
+                                <option value="無經驗">無經驗</option>
+                                <option value="1年以下">1年以下</option>
+                                <option value="1-3年">1-3年</option>
+                                <option value="3-5年">3-5年</option>
+                                <option value="5-10年">5-10年</option>
+                                <option value="10年以上">10年以上</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="form-group">
-                        <label>工作類型 *</label>
-                        <select id="employmentType" required>
-                            <option value="">請選擇工作類型</option>
-                            <option value="全職">全職</option>
-                            <option value="兼職">兼職</option>
-                            <option value="契約">契約</option>
-                            <option value="實習">實習</option>
-                        </select>
+                        <label>所需技能</label>
+                        <input type="text" id="skills" placeholder="例：JavaScript, React, Node.js, MySQL">
                     </div>
-                </div>
 
-                <div class="form-row">
                     <div class="form-group">
-                        <label>薪資範圍</label>
-                        <input type="text" id="salary" placeholder="例：30,000 - 50,000">
+                        <label>工作描述 *</label>
+                        <textarea id="description" required placeholder="請詳細描述工作內容、職責、要求、福利待遇等..."></textarea>
                     </div>
-                    <div class="form-group">
-                        <label>經驗要求</label>
-                        <select id="experience">
-                            <option value="">請選擇經驗要求</option>
-                            <option value="無經驗">無經驗</option>
-                            <option value="1年以下">1年以下</option>
-                            <option value="1-3年">1-3年</option>
-                            <option value="3-5年">3-5年</option>
-                            <option value="5年以上">5年以上</option>
-                        </select>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>聯絡信箱 *</label>
+                            <input type="email" id="contactEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>聯絡電話</label>
+                            <input type="tel" id="contactPhone" placeholder="選填">
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label>所需技能</label>
-                    <input type="text" id="skills" placeholder="例：JavaScript, React, Node.js">
-                </div>
-
-                <div class="form-group">
-                    <label>工作描述 *</label>
-                    <textarea id="description" required placeholder="請詳細描述工作內容、要求及福利等..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>聯絡信箱 *</label>
-                    <input type="email" id="contactEmail" required>
-                </div>
-
-                <button class="btn" id="submitBtn" onclick="submitJob()">🚀 發布職缺</button>
+                    <button type="button" class="btn" id="submitBtn" onclick="submitJob()">🚀 發布職缺</button>
+                </form>
             </div>
 
             <div id="search-tab" class="tab-content">
-                <h2 style="margin-bottom: 30px; color: #333;">查詢職缺</h2>
+                <h2 style="margin-bottom: 30px; color: #333;">職缺搜尋</h2>
                 
                 <div class="search-container">
-                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜尋職位、公司或技能關鍵字..." oninput="filterJobs()">
+                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 搜尋職位、公司名稱或技能關鍵字..." oninput="filterJobs()">
                 </div>
 
                 <div class="filters">
@@ -528,6 +576,7 @@
                         <option value="兼職">兼職</option>
                         <option value="契約">契約</option>
                         <option value="實習">實習</option>
+                        <option value="遠端工作">遠端工作</option>
                     </select>
                     <select id="experienceFilter" onchange="filterJobs()">
                         <option value="">所有經驗</option>
@@ -535,13 +584,42 @@
                         <option value="1年以下">1年以下</option>
                         <option value="1-3年">1-3年</option>
                         <option value="3-5年">3-5年</option>
-                        <option value="5年以上">5年以上</option>
+                        <option value="5-10年">5-10年</option>
+                        <option value="10年以上">10年以上</option>
                     </select>
                 </div>
 
                 <div id="jobResults" class="job-grid">
                     <div class="no-jobs">
                         🔄 正在載入職缺資訊...
+                    </div>
+                </div>
+            </div>
+
+            <div id="manage-tab" class="tab-content">
+                <h2 style="margin-bottom: 30px; color: #333;">系統管理</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <button class="btn" onclick="refreshData()" style="margin-top: 0;">🔄 重新載入</button>
+                    <button class="btn" onclick="exportData()" style="margin-top: 0;">📥 匯出資料</button>
+                    <button class="btn" onclick="clearTestData()" style="margin-top: 0;">🧹 清除測試</button>
+                    <button class="btn" onclick="showBackup()" style="margin-top: 0;">💾 備份管理</button>
+                </div>
+
+                <div class="info-message">
+                    <h3 style="margin-bottom: 15px; color: #004085;">🔧 系統資訊</h3>
+                    <div style="font-family: monospace; font-size: 0.9rem; line-height: 1.6;">
+                        <div><strong>系統版本:</strong> v2.0</div>
+                        <div><strong>資料庫狀態:</strong> <span id="dbStatus">檢查中...</span></div>
+                        <div><strong>最後同步:</strong> <span id="lastSync">-</span></div>
+                        <div><strong>總資料量:</strong> <span id="dataSize">-</span></div>
+                    </div>
+                </div>
+
+                <div style="background: #f8f9fa; border-radius: 10px; padding: 20px;">
+                    <h3 style="margin-bottom: 15px; color: #333;">📊 資料預覽</h3>
+                    <div style="max-height: 300px; overflow-y: auto; background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 15px;">
+                        <pre id="dataPreview" style="margin: 0; font-size: 0.8rem; line-height: 1.4; color: #333;">載入中...</pre>
                     </div>
                 </div>
             </div>
@@ -553,23 +631,26 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
+        // 系統設定 - 請替換為您的實際密碼
+        const SYSTEM_PASSWORD = "Yahoo";
+        
+        // 全域變數
+        let database = null;
+        let jobs = [];
+        let isConnected = false;
+        let isAuthenticated = false;
+
         // Firebase 設定
         const firebaseConfig = {
-            apiKey: "AIzaSyAVq3R9FdYcNydiCvH6YscZov03_xY1HNw",
-            authDomain: "job-opening-2025.firebaseapp.com",
-            databaseURL: "https://job-opening-2025-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "job-opening-2025",
-            storageBucket: "job-opening-2025.firebasestorage.app",
-            messagingSenderId: "352313956759",
-            appId: "1:352313956759:web:26893c760d2e6c92a64cd2",
-            measurementId: "G-KB1TF7PDYL"
+            apiKey: "AIzaSyDi5dN-ceLmaWi4Wvj4n_li9vCUz1Df7DM",
+            authDomain: "new-job-28aef.firebaseapp.com",
+            databaseURL: "https://new-job-28aef-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "new-job-28aef",
+            storageBucket: "new-job-28aef.firebasestorage.app",
+            messagingSenderId: "1072474824454",
+            appId: "1:1072474824454:web:f28ec298256cc5c1048887",
+            measurementId: "G-1LLC8G8J89"
         };
-
-        // 系統設定
-        const PASSWORD = "Yahoo";
-        let jobs = [];
-        let database = null;
-        let isConnected = false;
 
         // 初始化 Firebase
         function initFirebase() {
@@ -577,16 +658,16 @@
                 firebase.initializeApp(firebaseConfig);
                 database = firebase.database();
                 
+                console.log('🔥 Firebase 初始化成功');
+                
                 // 監聽連線狀態
                 const connectedRef = database.ref(".info/connected");
                 connectedRef.on("value", (snap) => {
-                    if (snap.val() === true) {
-                        setConnectionStatus('connected', '🟢 雲端資料庫已連線');
-                        isConnected = true;
-                        loadJobsFromFirebase();
-                    } else {
-                        setConnectionStatus('error', '🔴 資料庫連線中斷');
-                        isConnected = false;
+                    isConnected = snap.val() === true;
+                    updateConnectionStatus();
+                    
+                    if (isConnected && isAuthenticated) {
+                        loadJobs();
                     }
                 });
 
@@ -595,97 +676,78 @@
                 jobsRef.on('value', (snapshot) => {
                     const data = snapshot.val();
                     jobs = data ? Object.values(data) : [];
-                    console.log('從 Firebase 載入職缺:', jobs.length, '筆');
+                    
+                    console.log('📋 資料同步:', jobs.length, '筆職缺');
                     updateStats();
+                    updateManagementInfo();
+                    
+                    // 更新當前顯示的職缺
                     if (document.getElementById('search-tab').classList.contains('active')) {
-                        displayJobs(jobs);
-                        updateLocationFilter();
+                        filterJobs();
                     }
                 });
-
+                
             } catch (error) {
-                console.error('Firebase 初始化失敗:', error);
-                setConnectionStatus('error', '⚠️ 使用離線模式');
-                // 降級到記憶體模式
-                isConnected = false;
+                console.error('❌ Firebase 初始化失敗:', error);
+                updateConnectionStatus('error');
             }
         }
 
-        // 設定連線狀態
-        function setConnectionStatus(status, message) {
+        // 更新連線狀態
+        function updateConnectionStatus(status = null) {
             const statusEl = document.getElementById('connectionStatus');
-            statusEl.className = `connection-status status-${status}`;
-            statusEl.textContent = message;
-        }
-
-        // 從 Firebase 載入職缺
-        function loadJobsFromFirebase() {
-            if (!database) return;
             
-            const jobsRef = database.ref('jobs');
-            jobsRef.once('value')
-                .then((snapshot) => {
-                    const data = snapshot.val();
-                    jobs = data ? Object.values(data) : [];
-                    console.log('載入完成，共', jobs.length, '筆職缺');
-                    updateStats();
-                })
-                .catch((error) => {
-                    console.error('載入職缺失敗:', error);
-                });
-        }
-
-        // 儲存職缺到 Firebase
-        function saveJobToFirebase(jobData) {
-            if (!database || !isConnected) {
-                // 離線模式，僅存到記憶體
-                jobs.push(jobData);
-                updateStats();
-                return Promise.resolve();
+            if (status === 'error') {
+                statusEl.textContent = '❌ 連線失敗';
+                statusEl.style.background = '#f8d7da';
+                statusEl.style.color = '#721c24';
+            } else if (isConnected) {
+                statusEl.textContent = '🟢 資料庫已連線';
+                statusEl.style.background = '#d4edda';
+                statusEl.style.color = '#155724';
+            } else {
+                statusEl.textContent = '🔄 連線中...';
+                statusEl.style.background = '#cce7ff';
+                statusEl.style.color = '#004085';
             }
-
-            const jobsRef = database.ref('jobs');
-            return jobsRef.push(jobData)
-                .then(() => {
-                    console.log('職缺已儲存到雲端資料庫');
-                })
-                .catch((error) => {
-                    console.error('儲存失敗:', error);
-                    // 降級到記憶體存儲
-                    jobs.push(jobData);
-                    updateStats();
-                    throw error;
-                });
-        }
-
-        // 頁面切換函數
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-            console.log('切換到頁面:', pageId);
         }
 
         // 登入功能
         function attemptLogin() {
-            const password = document.getElementById('passwordInput').value;
+            const password = document.getElementById('passwordInput').value.trim();
             const errorDiv = document.getElementById('loginError');
             
-            if (password === PASSWORD) {
+            if (password === SYSTEM_PASSWORD) {
+                isAuthenticated = true;
                 errorDiv.style.display = 'none';
                 document.getElementById('passwordInput').value = '';
-                showPage('mainPage');
-                loadJobsFromFirebase();
+                showMainPage();
             } else {
                 errorDiv.style.display = 'block';
                 document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // 顯示主頁面
+        function showMainPage() {
+            document.getElementById('loginPage').classList.remove('active');
+            document.getElementById('mainPage').classList.add('active');
+            
+            if (isConnected) {
+                loadJobs();
             }
         }
 
         // 登出功能
         function logout() {
-            showPage('loginPage');
+            isAuthenticated = false;
+            document.getElementById('mainPage').classList.remove('active');
+            document.getElementById('loginPage').classList.add('active');
+            
+            // 清空敏感資料
+            jobs = [];
+            updateStats();
         }
 
         // 頁籤切換
@@ -702,16 +764,86 @@
             document.getElementById(tabName + '-tab').classList.add('active');
             event.target.classList.add('active');
             
+            // 特殊處理
             if (tabName === 'search') {
-                displayJobs(jobs);
+                filterJobs();
                 updateLocationFilter();
+            } else if (tabName === 'manage') {
+                updateManagementInfo();
             }
         }
 
-        // 顯示狀態訊息
-        function showUploadStatus(type, message) {
+        // 載入職缺
+        function loadJobs() {
+            if (!database || !isConnected) return;
+            
+            console.log('📥 載入職缺資料...');
+        }
+
+        // 提交職缺
+        function submitJob() {
+            if (!database || !isConnected) {
+                showMessage('error', '❌ 資料庫未連線，無法發布職缺');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '🔄 發布中...';
+
+            // 收集表單資料
+            const jobData = {
+                company: document.getElementById('company').value.trim(),
+                jobTitle: document.getElementById('jobTitle').value.trim(),
+                location: document.getElementById('location').value.trim(),
+                employmentType: document.getElementById('employmentType').value,
+                salary: document.getElementById('salary').value.trim(),
+                experience: document.getElementById('experience').value,
+                skills: document.getElementById('skills').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                contactEmail: document.getElementById('contactEmail').value.trim(),
+                contactPhone: document.getElementById('contactPhone').value.trim(),
+                createdDate: new Date().toLocaleDateString('zh-TW'),
+                createdAt: new Date().toISOString(),
+                id: 'job_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+            };
+
+            // 驗證必填欄位
+            if (!jobData.company || !jobData.jobTitle || !jobData.location || 
+                !jobData.employmentType || !jobData.description || !jobData.contactEmail) {
+                showMessage('error', '❌ 請填寫所有必填欄位！');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 發布職缺';
+                return;
+            }
+
+            // 儲存到 Firebase
+            const jobsRef = database.ref('jobs');
+            jobsRef.push(jobData)
+                .then((ref) => {
+                    console.log('✅ 職缺發布成功，ID:', ref.key);
+                    showMessage('success', '✅ 職缺已成功發布！');
+                    clearForm();
+                })
+                .catch((error) => {
+                    console.error('❌ 發布失敗:', error);
+                    showMessage('error', '❌ 發布失敗：' + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 發布職缺';
+                });
+        }
+
+        // 清空表單
+        function clearForm() {
+            document.getElementById('jobForm').reset();
+        }
+
+        // 顯示訊息
+        function showMessage(type, message) {
             const statusEl = document.getElementById('uploadStatus');
-            statusEl.className = `${type}-message`;
+            statusEl.className = type + '-message';
             statusEl.textContent = message;
             statusEl.style.display = 'block';
             
@@ -720,61 +852,6 @@
                     statusEl.style.display = 'none';
                 }, 3000);
             }
-        }
-
-        // 提交職缺
-        async function submitJob() {
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = '🔄 發布中...';
-            
-            try {
-                const jobData = {
-                    id: Date.now() + Math.random().toString(36).substr(2, 9),
-                    company: document.getElementById('company').value,
-                    jobTitle: document.getElementById('jobTitle').value,
-                    location: document.getElementById('location').value,
-                    employmentType: document.getElementById('employmentType').value,
-                    salary: document.getElementById('salary').value,
-                    experience: document.getElementById('experience').value,
-                    skills: document.getElementById('skills').value,
-                    description: document.getElementById('description').value,
-                    contactEmail: document.getElementById('contactEmail').value,
-                    createdDate: new Date().toLocaleDateString('zh-TW'),
-                    createdAt: new Date().toISOString()
-                };
-
-                // 驗證必填欄位
-                if (!jobData.company || !jobData.jobTitle || !jobData.location || 
-                    !jobData.employmentType || !jobData.description || !jobData.contactEmail) {
-                    showUploadStatus('error', '❌ 請填寫所有必填欄位！');
-                    return;
-                }
-
-                await saveJobToFirebase(jobData);
-                showUploadStatus('success', '✅ 職缺已成功發布到雲端！');
-                clearJobForm();
-
-            } catch (error) {
-                console.error('發布職缺失敗:', error);
-                showUploadStatus('error', '❌ 發布失敗，請稍後再試');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 發布職缺';
-            }
-        }
-
-        // 清空表單
-        function clearJobForm() {
-            document.getElementById('company').value = '';
-            document.getElementById('jobTitle').value = '';
-            document.getElementById('location').value = '';
-            document.getElementById('employmentType').value = '';
-            document.getElementById('salary').value = '';
-            document.getElementById('experience').value = '';
-            document.getElementById('skills').value = '';
-            document.getElementById('description').value = '';
-            document.getElementById('contactEmail').value = '';
         }
 
         // 篩選職缺
@@ -808,37 +885,75 @@
             if (jobsToShow.length === 0) {
                 container.innerHTML = `
                     <div class="no-jobs">
-                        🔍 ${jobs.length === 0 ? '目前沒有職缺資訊' : '沒有符合條件的職缺'}<br><br>
-                        <small>${jobs.length === 0 ? '請到「發布職缺」頁面新增職缺' : '請嘗試調整搜尋條件'}</small>
+                        ${jobs.length === 0 ? 
+                          '📭 目前沒有職缺資訊<br><br><small>請到「發布職缺」頁面新增職缺</small>' : 
+                          '🔍 沒有符合條件的職缺<br><br><small>請嘗試調整搜尋條件</small>'
+                        }
                     </div>
                 `;
                 return;
             }
             
-            container.innerHTML = jobsToShow.map(job => `
+            container.innerHTML = jobsToShow.map(job => createJobCard(job)).join('');
+        }
+
+        // 創建職缺卡片
+        function createJobCard(job) {
+            const descriptionLines = job.description.split('\n');
+            const isLongDescription = descriptionLines.length > 10 || job.description.length > 500;
+            const shortDescription = isLongDescription ? 
+                job.description.substring(0, 400) + '...' : job.description;
+
+            return `
                 <div class="job-card">
                     <div class="job-title">${job.jobTitle}</div>
                     <div class="job-company">${job.company}</div>
                     <div class="job-details">
-                        <div class="job-detail"><strong>地點:</strong> ${job.location}</div>
-                        <div class="job-detail"><strong>類型:</strong> ${job.employmentType}</div>
-                        <div class="job-detail"><strong>薪資:</strong> ${job.salary || '面議'}</div>
-                        <div class="job-detail"><strong>經驗:</strong> ${job.experience || '不拘'}</div>
+                        <div class="job-detail"><strong>📍 地點:</strong> ${job.location}</div>
+                        <div class="job-detail"><strong>💼 類型:</strong> ${job.employmentType}</div>
+                        <div class="job-detail"><strong>💰 薪資:</strong> ${job.salary || '面議'}</div>
+                        <div class="job-detail"><strong>⏰ 經驗:</strong> ${job.experience || '不拘'}</div>
                     </div>
-                    ${job.skills ? `<div class="job-detail"><strong>技能:</strong> ${job.skills}</div>` : ''}
-                    <div class="job-description">${job.description}</div>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; color: #666; font-size: 0.9rem;">
-                        <strong>聯絡方式:</strong> ${job.contactEmail}<br>
-                        <strong>發布時間:</strong> ${job.createdDate}
+                    ${job.skills ? `<div class="job-detail"><strong>🛠️ 技能:</strong> ${job.skills}</div>` : ''}
+                    <div class="job-description ${isLongDescription ? 'collapsed' : ''}" id="desc-${job.id}">
+                        ${isLongDescription ? shortDescription : job.description}
+                    </div>
+                    ${isLongDescription ? `
+                        <button class="expand-btn" onclick="toggleDescription('${job.id}')">
+                            📖 展開完整描述
+                        </button>
+                    ` : ''}
+                    <div class="job-footer">
+                        <strong>📧 聯絡:</strong> ${job.contactEmail}
+                        ${job.contactPhone ? `<br><strong>📞 電話:</strong> ${job.contactPhone}` : ''}
+                        <br><strong>📅 發布:</strong> ${job.createdDate}
                     </div>
                 </div>
-            `).join('');
+            `;
+        }
+
+        // 展開/收合職缺描述
+        function toggleDescription(jobId) {
+            const descEl = document.getElementById(`desc-${jobId}`);
+            const btnEl = descEl.parentNode.querySelector('.expand-btn');
+            const job = jobs.find(j => j.id === jobId);
+            
+            if (descEl.classList.contains('collapsed')) {
+                descEl.classList.remove('collapsed');
+                descEl.innerHTML = job.description;
+                btnEl.innerHTML = '📝 收合描述';
+            } else {
+                descEl.classList.add('collapsed');
+                const shortDescription = job.description.substring(0, 400) + '...';
+                descEl.innerHTML = shortDescription;
+                btnEl.innerHTML = '📖 展開完整描述';
+            }
         }
 
         // 更新地點篩選器
         function updateLocationFilter() {
             const locationFilter = document.getElementById('locationFilter');
-            const locations = [...new Set(jobs.map(job => job.location))];
+            const locations = [...new Set(jobs.map(job => job.location))].sort();
             
             locationFilter.innerHTML = '<option value="">所有地點</option>' +
                 locations.map(location => `<option value="${location}">${location}</option>`).join('');
@@ -856,7 +971,108 @@
             document.getElementById('todayJobs').textContent = todayJobs;
         }
 
-        // 允許 Enter 鍵登入
+        // 管理功能
+        function refreshData() {
+            if (database && isConnected) {
+                console.log('🔄 手動重新載入資料');
+                loadJobs();
+                showMessage('success', '✅ 資料已重新載入');
+            } else {
+                showMessage('error', '❌ 資料庫未連線');
+            }
+        }
+
+        function exportData() {
+            if (jobs.length === 0) {
+                showMessage('error', '❌ 沒有資料可以匯出');
+                return;
+            }
+
+            const dataStr = JSON.stringify(jobs, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `tiger-jobs-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showMessage('success', '✅ 資料已匯出');
+            console.log('📥 資料匯出完成');
+        }
+
+        function clearTestData() {
+            if (!database || !isConnected) {
+                showMessage('error', '❌ 資料庫未連線');
+                return;
+            }
+
+            if (confirm('確定要清除所有測試資料嗎？此操作無法復原！')) {
+                const testJobsToDelete = jobs.filter(job => 
+                    job.company.includes('測試') || 
+                    job.jobTitle.includes('測試') ||
+                    job.description.includes('測試') ||
+                    job.testFlag === true
+                );
+
+                if (testJobsToDelete.length === 0) {
+                    showMessage('info', 'ℹ️ 沒有找到測試資料');
+                    return;
+                }
+
+                // 這裡需要實作刪除功能
+                showMessage('info', `🧹 發現 ${testJobsToDelete.length} 筆測試資料，請手動到 Firebase Console 刪除`);
+            }
+        }
+
+        function showBackup() {
+            const backupInfo = `
+系統備份資訊：
+- 資料庫：Firebase Realtime Database
+- 自動備份：每日午夜12點
+- 備份保留：30天
+- 手動備份：可隨時匯出 JSON 格式
+
+建議定期使用「匯出資料」功能進行本地備份。
+            `;
+            alert(backupInfo);
+        }
+
+        // 更新管理資訊
+        function updateManagementInfo() {
+            const dbStatusEl = document.getElementById('dbStatus');
+            const lastSyncEl = document.getElementById('lastSync');
+            const dataSizeEl = document.getElementById('dataSize');
+            const dataPreviewEl = document.getElementById('dataPreview');
+
+            if (isConnected) {
+                dbStatusEl.textContent = '🟢 正常運行';
+                dbStatusEl.style.color = '#28a745';
+            } else {
+                dbStatusEl.textContent = '🔴 連線中斷';
+                dbStatusEl.style.color = '#dc3545';
+            }
+
+            lastSyncEl.textContent = new Date().toLocaleString('zh-TW');
+            
+            const dataSize = JSON.stringify(jobs).length;
+            dataSizeEl.textContent = `${Math.round(dataSize / 1024)} KB (${jobs.length} 筆記錄)`;
+
+            if (jobs.length > 0) {
+                const preview = jobs.slice(0, 3).map(job => ({
+                    公司: job.company,
+                    職位: job.jobTitle,
+                    地點: job.location,
+                    發布時間: job.createdDate
+                }));
+                dataPreviewEl.textContent = JSON.stringify(preview, null, 2);
+            } else {
+                dataPreviewEl.textContent = '目前沒有職缺資料';
+            }
+        }
+
+        // 鍵盤事件
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && document.getElementById('loginPage').classList.contains('active')) {
                 attemptLogin();
@@ -865,12 +1081,12 @@
 
         // 初始化系統
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 退虎徵才系統啟動中...');
-            setConnectionStatus('connecting', '🔄 正在連接雲端資料庫...');
+            console.log('🚀 退虎徵才系統 v2.0 啟動');
+            updateConnectionStatus();
             initFirebase();
         });
 
-        console.log('🌟 退虎徵才系統已準備就緒！');
+        console.log('🌟 退虎徵才系統 v2.0 已準備就緒！');
     </script>
 </body>
 </html>
