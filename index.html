@@ -861,7 +861,7 @@
             const typeFilter = document.getElementById('typeFilter').value;
             const experienceFilter = document.getElementById('experienceFilter').value;
             
-            const filteredJobs = jobs.filter(job => {
+            let filteredJobs = jobs.filter(job => {
                 const matchesSearch = !searchTerm || 
                     job.jobTitle.toLowerCase().includes(searchTerm) ||
                     job.company.toLowerCase().includes(searchTerm) ||
@@ -873,6 +873,14 @@
                 const matchesExperience = !experienceFilter || job.experience === experienceFilter;
                 
                 return matchesSearch && matchesLocation && matchesType && matchesExperience;
+            });
+            
+            // 按發布時間排序：最新的在前面
+            filteredJobs.sort((a, b) => {
+                // 使用 createdAt 時間戳進行排序
+                const timeA = new Date(a.createdAt || a.createdDate).getTime();
+                const timeB = new Date(b.createdAt || b.createdDate).getTime();
+                return timeB - timeA; // 降序排列，最新的在前
             });
             
             displayJobs(filteredJobs);
@@ -904,8 +912,34 @@
             const shortDescription = isLongDescription ? 
                 job.description.substring(0, 400) + '...' : job.description;
 
+            // 檢查是否為最近發布（24小時內）
+            const jobTime = new Date(job.createdAt || job.createdDate);
+            const now = new Date();
+            const hoursDiff = (now - jobTime) / (1000 * 60 * 60);
+            const isNew = hoursDiff < 24;
+            const isVeryNew = hoursDiff < 1; // 1小時內
+
+            // 格式化發布時間
+            let timeDisplay = job.createdDate;
+            if (job.createdAt) {
+                const jobDate = new Date(job.createdAt);
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (jobDate.toDateString() === today.toDateString()) {
+                    timeDisplay = `今天 ${jobDate.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+                } else if (jobDate.toDateString() === yesterday.toDateString()) {
+                    timeDisplay = `昨天 ${jobDate.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+                } else {
+                    timeDisplay = jobDate.toLocaleDateString('zh-TW') + ' ' + jobDate.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'});
+                }
+            }
+
             return `
-                <div class="job-card">
+                <div class="job-card" style="${isNew ? 'border-left-color: #28a745; box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);' : ''}">
+                    ${isVeryNew ? '<div style="position: absolute; top: 15px; right: 15px; background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">🆕 剛發布</div>' : ''}
+                    ${isNew && !isVeryNew ? '<div style="position: absolute; top: 15px; right: 15px; background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">✨ 最新</div>' : ''}
                     <div class="job-title">${job.jobTitle}</div>
                     <div class="job-company">${job.company}</div>
                     <div class="job-details">
@@ -926,7 +960,7 @@
                     <div class="job-footer">
                         <strong>📧 聯絡:</strong> ${job.contactEmail}
                         ${job.contactPhone ? `<br><strong>📞 電話:</strong> ${job.contactPhone}` : ''}
-                        <br><strong>📅 發布:</strong> ${job.createdDate}
+                        <br><strong>📅 發布:</strong> <span style="${isNew ? 'color: #28a745; font-weight: bold;' : ''}">${timeDisplay}</span>
                     </div>
                 </div>
             `;
